@@ -11,6 +11,7 @@ import androidx.viewpager.widget.ViewPager
 import co.heri.littlecab.R
 import co.heri.littlecab.adapters.BottomSheetSliderAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.tabs.TabLayout
 
 
 class MainFragment : Fragment() {
@@ -32,6 +33,9 @@ class MainFragment : Fragment() {
 
         val viewPager = viewLayout.findViewById(R.id.pager) as ViewPager
         viewPager.adapter = BottomSheetSliderAdapter()
+
+        val bottomTab = viewLayout.findViewById<TabLayout>(R.id.bottom_tab);
+        bottomTab.setupWithViewPager(viewPager, true)
 
         viewLayout.findViewById<View>(R.id.place_picker_search).setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED

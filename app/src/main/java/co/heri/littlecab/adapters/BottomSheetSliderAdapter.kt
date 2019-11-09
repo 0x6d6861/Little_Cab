@@ -17,20 +17,19 @@ class BottomSheetSliderAdapter : PagerAdapter() {
         val v: View = pager.getChildAt(position);
 
         return v;
-
-        /*var resId = 0
-        val view = LayoutInflater.from(collection.context)
-            .inflate(R.layout.main_bottom_sheet,collection,false)
-
-        when (position) {
-            0 -> resId = R.id.page_1
-            1 -> resId = R.id.page_1
-        }
-        return view.findViewById(resId);*/
     }
 
     override fun getCount(): Int {
         return 2
+    }
+
+    override fun getPageTitle(position: Int): CharSequence? {
+
+        return if(position == 0){
+            "Personal"
+        } else {
+            "Corporate"
+        }
     }
 
     override fun isViewFromObject(arg0: View, arg1: Any): Boolean {

@@ -8,55 +8,11 @@
     tools:context=".ui.main.MainFragment">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bottom_sheet_bg"
-        app:behavior_peekHeight="290dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <include
-                android:id="@+id/page_1"
-                layout="@layout/main_bottom_sheet" />
-
-            <LinearLayout
-                android:id="@+id/page_2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Hello" />
-            </LinearLayout>
-        </androidx.viewpager.widget.ViewPager>
-
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/place_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        android:elevation="4dp"
+        android:elevation="8dp"
         android:orientation="vertical"
         android:paddingStart="16dp"
         android:paddingTop="12dp"
@@ -142,6 +98,64 @@
                     android:src="@drawable/ic_baseline_add_24" />-->
 
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bottom_sheet_bg"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:outlineProvider="paddedBounds"
+        app:behavior_peekHeight="310dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/bottom_tab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:tabIndicatorFullWidth="false"
+            app:tabIndicatorGravity="top"
+            app:tabMode="scrollable" />
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never">
+
+            <include
+                android:id="@+id/page_1"
+                layout="@layout/main_bottom_sheet" />
+
+            <LinearLayout
+                android:id="@+id/page_2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hello" />
+            </LinearLayout>
+        </androidx.viewpager.widget.ViewPager>
+
     </LinearLayout>
 
 
