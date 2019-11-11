@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.heri.littlecab">
 
+    <permission android:name="ACCESS_FINE_LOCATION" />
+    <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyC0Ac9jmk3V8A7vOY3yT3wBUWdqvaqa5Ss"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

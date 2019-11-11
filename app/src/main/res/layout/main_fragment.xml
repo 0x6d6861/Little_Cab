@@ -32,7 +32,6 @@
                 android:src="@drawable/ic_baseline_person_pin_24" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -73,7 +72,6 @@
                 app:srcCompat="@drawable/ic_baseline_trip_origin_24" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -106,10 +104,12 @@
         android:background="@color/colorAccent"
         android:orientation="vertical">
 
-        <TextView
+        <!--<fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:layout_height="match_parent"
+            tools:context=".ui.main.MainFragment" />-->
     </LinearLayout>
 
     <LinearLayout
@@ -149,10 +149,9 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Hello" />
+                <include
+                    android:id="@+id/page_1"
+                    layout="@layout/corporate_trips" />
             </LinearLayout>
         </androidx.viewpager.widget.ViewPager>
 
