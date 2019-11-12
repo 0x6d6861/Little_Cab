@@ -104,12 +104,17 @@
         android:background="@color/colorAccent"
         android:orientation="vertical">
 
-        <!--<fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+        <Button
+            android:id="@+id/myLocation"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".ui.main.MainFragment" />-->
+            android:layout_height="wrap_content"
+            android:text="Button" />
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 
     <LinearLayout

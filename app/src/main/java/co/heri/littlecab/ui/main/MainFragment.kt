@@ -1,23 +1,24 @@
 package co.heri.littlecab.ui.main
 
+import android.content.res.Resources.NotFoundException
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.viewpager.widget.ViewPager
-import co.heri.littlecab.R
 import co.heri.littlecab.adapters.BottomSheetSliderAdapter
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayout
+import co.heri.littlecab.R
 
 
 class MainFragment : Fragment(), OnMapReadyCallback {
@@ -29,13 +30,17 @@ class MainFragment : Fragment(), OnMapReadyCallback {
     private lateinit var viewModel: MainViewModel
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var mMap: GoogleMap
+    private lateinit var mMapView: MapView
+    private lateinit var viewLayout: View
+
+    private lateinit var locationButton: View
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val viewLayout = inflater.inflate(R.layout.main_fragment, container, false)
+         viewLayout = inflater.inflate(R.layout.main_fragment, container, false)
 
             this.initBottomSheet(viewLayout);
 
@@ -49,11 +54,8 @@ class MainFragment : Fragment(), OnMapReadyCallback {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
 
-//        this.initializeMap()
 
-
-
-
+        this.initializeMap(savedInstanceState);
 
         return viewLayout;
     }
@@ -69,18 +71,37 @@ class MainFragment : Fragment(), OnMapReadyCallback {
 
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-//        this.initializeMap()
-    }
 
-    /*private fun initializeMap() {
-        if (mMap == null) {
-            val mapFrag =
-                fragmentManager?.findFragmentById(R.id.map) as SupportMapFragment
-            mapFrag.getMapAsync(this)
+
+    private fun initializeMap(savedInstanceState: Bundle?) {
+        mMapView = viewLayout.findViewById(R.id.map)
+        mMapView.onCreate(savedInstanceState)
+        mMapView.onResume()
+
+
+
+        locationButton = (mMapView.findViewById<View>(Integer.parseInt("1")).parent).findViewById<View>(Integer.parseInt("2"));
+        // Change the visibility of my location button
+        if(locationButton != null){
+            locationButton.visibility = View.GONE;
         }
-    }*/
+
+
+
+        try {
+            MapsInitializer.initialize(activity!!.applicationContext)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        mMapView.getMapAsync(this@MainFragment)
+
+        viewLayout.findViewById<Button>(R.id.myLocation).setOnClickListener {
+            if(mMap.myLocation != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
+                locationButton.callOnClick();
+                }
+        }
+    }
 
     private fun initBottomSheet(viewLayout: View){
 
@@ -128,6 +149,30 @@ class MainFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        try { // Customise the styling of the base map using a JSON object defined
+// in a raw resource file.
+            val success = mMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this@MainFragment.context, R.raw.gmaps_style
+                )
+            )
+
+            mMap.setPadding(50, 50, 50, 750);
+            mMap.uiSettings.isCompassEnabled = false;
+
+            if (!success) {
+                Log.e("MAP_FRAGMENT", "Style parsing failed.")
+            }
+        } catch (e: NotFoundException) {
+            Log.e("MAP_FRAGMENT", "Can't find style. Error: ", e)
+        }
+        mMap.isMyLocationEnabled = true;
+//        mMap.uiSettings.isMyLocationButtonEnabled = false;
+
+
+
+
+
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
@@ -149,6 +194,26 @@ class MainFragment : Fragment(), OnMapReadyCallback {
                 }
             })
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mMapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mMapView.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mMapView.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mMapView.onLowMemory()
     }
 
 }
