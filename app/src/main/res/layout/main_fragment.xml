@@ -104,6 +104,7 @@
         android:background="@color/colorAccent"
         android:orientation="vertical">
 
+
         <Button
             android:id="@+id/myLocation"
             android:layout_width="match_parent"

@@ -1,6 +1,10 @@
 package co.heri.littlecab.ui.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.res.Resources.NotFoundException
+import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,10 +12,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.viewpager.widget.ViewPager
 import co.heri.littlecab.adapters.BottomSheetSliderAdapter
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -19,9 +26,12 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import co.heri.littlecab.R
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.CameraPosition
 
 
-class MainFragment : Fragment(), OnMapReadyCallback {
+class MainFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+    GoogleApiClient.OnConnectionFailedListener {
 
     companion object {
         fun newInstance() = MainFragment()
@@ -33,7 +43,13 @@ class MainFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mMapView: MapView
     private lateinit var viewLayout: View
 
-    private lateinit var locationButton: View
+    private lateinit var googleApiClient: GoogleApiClient
+
+    private lateinit var mLocationRequest: LocationRequest
+
+
+    private val REQUEST_FINE_LOCATION=0
+
 
 
     override fun onCreateView(
@@ -57,6 +73,20 @@ class MainFragment : Fragment(), OnMapReadyCallback {
 
         this.initializeMap(savedInstanceState);
 
+        viewLayout.findViewById<Button>(R.id.myLocation).setOnClickListener {
+
+            LocationServices.getFusedLocationProviderClient(this.activity!!.parent).lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val position = CameraPosition.Builder()
+                        .target(LatLng(it.latitude, it.longitude))
+                        .zoom(15.0f)
+                        .build()
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(position))
+                }
+            }
+
+        }
+
         return viewLayout;
     }
 
@@ -65,9 +95,6 @@ class MainFragment : Fragment(), OnMapReadyCallback {
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         // TODO: Use the ViewModel
 
-//        this.initializeMap()
-        /*val mapFragment = fragmentManager?.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this@MainFragment) */
 
     }
 
@@ -78,28 +105,43 @@ class MainFragment : Fragment(), OnMapReadyCallback {
         mMapView.onCreate(savedInstanceState)
         mMapView.onResume()
 
-
-
-        locationButton = (mMapView.findViewById<View>(Integer.parseInt("1")).parent).findViewById<View>(Integer.parseInt("2"));
-        // Change the visibility of my location button
-        if(locationButton != null){
-            locationButton.visibility = View.GONE;
-        }
-
-
-
         try {
             MapsInitializer.initialize(activity!!.applicationContext)
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+
+
         mMapView.getMapAsync(this@MainFragment)
 
-        viewLayout.findViewById<Button>(R.id.myLocation).setOnClickListener {
-            if(mMap.myLocation != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
-                locationButton.callOnClick();
-                }
+        //Initializing googleApiClient
+        googleApiClient = GoogleApiClient.Builder(this@MainFragment.context!!)
+                .addConnectionCallbacks(this@MainFragment)
+                .addOnConnectionFailedListener(this@MainFragment)
+                .addApi(LocationServices.API)
+                .build();
+
+    }
+
+    private fun checkPermissions(): Boolean {
+        return if (ContextCompat.checkSelfPermission(
+                this@MainFragment.context!!,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            true
+        } else {
+            requestPermissions()
+            false
+        }
+    }
+
+    private fun requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this@MainFragment.activity?.requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_FINE_LOCATION
+            )
         }
     }
 
@@ -157,6 +199,7 @@ class MainFragment : Fragment(), OnMapReadyCallback {
                 )
             )
 
+
             mMap.setPadding(50, 50, 50, 750);
             mMap.uiSettings.isCompassEnabled = false;
 
@@ -166,17 +209,19 @@ class MainFragment : Fragment(), OnMapReadyCallback {
         } catch (e: NotFoundException) {
             Log.e("MAP_FRAGMENT", "Can't find style. Error: ", e)
         }
-        mMap.isMyLocationEnabled = true;
+
+        if(checkPermissions()) {
+            mMap.isMyLocationEnabled = true;
 //        mMap.uiSettings.isMyLocationButtonEnabled = false;
-
-
-
-
+        } else {
+            // show why location is mendatory
+        }
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
     }
 
     private fun interpolateValues(fraction: Float, startValue: Float, endValue: Float): Float {
@@ -195,6 +240,8 @@ class MainFragment : Fragment(), OnMapReadyCallback {
             })
         }
     }
+
+
 
     override fun onResume() {
         super.onResume()
@@ -216,4 +263,17 @@ class MainFragment : Fragment(), OnMapReadyCallback {
         mMapView.onLowMemory()
     }
 
+    override fun onConnected(p0: Bundle?) {
+        //
+    }
+
+    override fun onConnectionSuspended(p0: Int) {
+        //
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        //
+    }
+
 }
+
